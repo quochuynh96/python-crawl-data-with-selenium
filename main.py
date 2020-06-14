@@ -1,14 +1,21 @@
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
+from crawl_from_web_tinhte.crawl_from_web_tinhte import crawl_from_web_tinhte
+from telegram_bot.telegram_bot import telegram_bot
+import json
 
-import time
-driver = webdriver.Chrome(ChromeDriverManager().install())
+news = []
 
-url = "https://dev.to/"
-driver.get(url)
-time.sleep(3)
+if __name__ == '__main__':
+    with open('config.json') as file:
+        config = json.load(file)
 
-elements = driver.find_elements_by_css_selector(".crayons-story__title")
-titles = [el.text for el in elements]
+    print("I'm fetching config...")
+    url = config['tinhte_vn_url']
+    css_selector = config['tinhte_vn_css_selector']
+    chat_bot_token = config['chat_bot_token']
+    print("I'm crawling data from %s" % (url))
 
-print(titles)
+    crawl_bot = crawl_from_web_tinhte(url)
+    news = crawl_bot.crawl_title(css_selector)
+
+    bot = telegram_bot(news, chat_bot_token)
+    bot.send()
